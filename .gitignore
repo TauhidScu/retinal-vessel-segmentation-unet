@@ -1,0 +1,419 @@
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+config.ini
+settings.conf
+secrets.json
+credentials.json
+
+# Patient data (HIPAA protected)
+**/patient_data/
+**/medical_records/
+**/phi_data/
+**/hipaa_protected/
+patient_*.json
+medical_*.csv
+phi_*.txt
+
+# Audit logs and compliance files
+audit_logs/
+compliance_reports/
+hipaa_audit/
+*.audit
+*.compliance
+
+# Medical imaging data (large files)
+*.dcm
+*.dicom
+*.nii
+*.nii.gz
+datasets/*/images/
+datasets/*/masks/
+datasets/*/annotations/
+*.png
+*.jpg
+*.jpeg
+*.bmp
+*.gif
+*.tiff
+*.tif
+*.raw
+*.dcm
+*.dicom
+*.nii
+*.nii.gz
+*.mha
+*.mhd
+*.mha.gz
+*.mhd.gz
+*.nrrd
+*.nhdr
+*.nrrd.gz
+*.nhdr.gz
+*.vtp
+*.vtp.gz
+*.vti
+*.vti.gz
+*.vtu
+*.vtu.gz
+*.stl
+*.stl.gz
+*.ply
+*.ply.gz
+*.obj
+*.obj.gz
+*.off
+*.off.gz
+*.gltf
+*.gltf.gz
+*.glb
+*.glb.gz
+*.fbx
+*.fbx.gz
+*.3ds
+*.3ds.gz
+*.dae
+*.dae.gz
+*.x3d
+*.x3d.gz
+*.x3db
+*.x3db.gz
+*.x3dv
+*.x3dv.gz
+*.x3d.gz
+*.x3db.gz
+*.x3dv.gz
+*.x3d.gz
+*.x3db.gz
+*.x3dv.gz
+*.x3d.gz
+*.x3db.gz
+*.x3dv.gz
+*.x3d.gz
+*.x3db.gz
+*.x3dv.gz
+*.x3d.gz
+*.x3db.gz
+*.x3dv
+*.x3d.gz
+*.x3db.gz
+*.x3dv.gz
+*.txt
+
+# Proprietary algorithms (intentionally private)
+proprietary_algorithms/
+advanced_models/
+custom_architectures/
+research_secrets/
+
+# Advanced preprocessing techniques
+advanced_preprocessing/
+proprietary_augmentation/
+custom_transforms/
+enhancement_algorithms/
+
+# Research collaboration files
+collaboration_data/
+multi_institutional/
+federated_learning/
+cross_border_data/
+
+# Grant and funding information
+grant_applications/
+funding_docs/
+research_proposals/
+institutional_agreements/
+
+# Trained models (large files)
+*.pth
+*.pt
+*.h5
+*.pkl
+*.joblib
+models/trained/
+checkpoints/
+saved_models/
+model_weights/
+
+# Training outputs
+outputs/
+results/
+experiments/
+logs/training/
+tensorboard_logs/
+wandb/
+
+# Model evaluation results
+evaluation_results/
+performance_metrics/
+benchmark_results/
+comparison_studies/
+
+# Processed data cache
+cache/
+temp_data/
+processed_cache/
+augmented_data/
+preprocessed/
+
+# Data processing temporary files
+*.tmp
+*.temp
+temp_*
+processing_*
+intermediate_*
+
+# Large data files
+*.zip
+*.tar.gz
+*.rar
+*.7z
+data_*.tar
+datasets_*.zip
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# Research notebooks with sensitive data
+research_notebooks/
+experimental_notebooks/
+analysis_notebooks/
+sensitive_analysis/
+
+# Jupyter configuration
+.jupyter/
+jupyter_config/
+
+# PyCharm
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Spyder
+.spyderproject
+.spyproject
+
+# Rope
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# AWS
+.aws/
+aws_credentials
+*.pem
+
+# Google Cloud
+gcloud_credentials.json
+service_account.json
+.gcloud/
+
+# Azure
+.azure/
+azure_credentials
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+.docker/
+
+# Kubernetes
+*.kubeconfig
+k8s_secrets/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+database.sql
+db_backup/
+database_dumps/
+
+# Redis
+dump.rdb
+
+# OCT scanner integration files
+oct_config/
+scanner_drivers/
+device_certificates/
+medical_device_keys/
+
+# DICOM server configuration
+dicom_config/
+pacs_settings/
+medical_network_config/
+
+# University/Hospital specific files
+institution_config/
+hospital_integration/
+clinical_workflow/
+ehr_integration/
+
+# IRB and ethics documentation
+irb_documents/
+ethics_approvals/
+consent_forms/
+study_protocols/
+
+# Backup files
+*.bak
+*.backup
+*~
+*.swp
+*.swo
+
+# Log files
+*.log
+logs/
+*.out
+*.err
+
+# Temporary directories
+tmp/
+temp/
+temporary/
+
+# Profiling data
+*.prof
+profiling_data/
+performance_logs/
+
+# Monitoring data
+monitoring/
+metrics/
+alerts/
+
+# Legal documents (keep private)
+legal_documents/
+contracts/
+agreements/
+licensing/
+patent_applications/
+
+# Compliance documentation
+compliance_docs/
+audit_reports/
+regulatory_submissions/
+
+# Advanced neural architecture components
+advanced_nas/
+proprietary_layers/
+custom_optimizers/
+novel_architectures/
+
+# Cutting-edge preprocessing
+advanced_image_processing/
+proprietary_filters/
+custom_enhancement/
+novel_augmentation/
+
+# Experimental research
+experimental_methods/
+unpublished_research/
+preliminary_results/
+confidential_analysis/
+
+# Multi-institutional collaboration
+shared_research/
+collaborative_models/
+joint_experiments/
+cross_institutional/
