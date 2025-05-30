@@ -1,24 +1,47 @@
 import torch
 
+
 class ConfusionMatrix(object):
+    """
+    Class for computing confusion matrix and related evaluation metrics.
+    """
     def __init__(self, num_classes):
-        self.num_classes = num_classes  # Total number of classes
+        """
+        Initialize confusion matrix tracker.
+        
+        Args:
+            num_classes: Total number of classes
+        """
+        self.num_classes = num_classes
         self.mat = None
 
     def update(self, a, b):
-        # Update with actual (a) and predicted (b)
+        """
+        Update confusion matrix with batch of actual and predicted labels.
+        
+        Args:
+            a: Ground truth labels
+            b: Predicted labels
+        """
         n = self.num_classes
         if self.mat is None:
             # Initialize confusion matrix on the same device as input
             self.mat = torch.zeros((n, n), dtype=torch.int64, device=a.device)
+        
         with torch.no_grad():
             # Calculate indices for valid entries
             k = (a >= 0) & (a < n)
             inds = n * a[k].to(torch.int64) + b[k]
             # Update counts
-            self.mat += torch.bincount(inds, minlength=n ** 2).reshape(n, n)
+            self.mat += torch.bincount(inds, minlength=n**2).reshape(n, n)
 
     def compute(self):
+        """
+        Compute evaluation metrics from the confusion matrix.
+        
+        Returns:
+            Dictionary containing accuracy and averaged metrics
+        """
         h = self.mat.float()
         acc_global = (torch.diag(h).sum() / h.sum()).item()
 
@@ -29,8 +52,8 @@ class ConfusionMatrix(object):
         sum_f1_score = 0
         sum_iou = 0
 
-        # Calculate confusion matrix components and metrics for each class
-        for class_idx in range(self.num_classes):  # Iterate over each class
+        # Calculate metrics for each class
+        for class_idx in range(self.num_classes):
             TP = h[class_idx, class_idx]
             FP = h[:, class_idx].sum() - TP
             FN = h[class_idx, :].sum() - TP
@@ -50,7 +73,7 @@ class ConfusionMatrix(object):
             sum_f1_score += f1_score
             sum_iou += iou
 
-        # Averaging metrics over all classes
+        # Average metrics over all classes
         avg_sensitivity = sum_sensitivity / self.num_classes
         avg_specificity = sum_specificity / self.num_classes
         avg_precision = sum_precision / self.num_classes
@@ -66,23 +89,49 @@ class ConfusionMatrix(object):
             'average_f1_score': avg_f1_score,
             'average_iou': avg_iou
         }
-    
+
+
 class TrainMatrix(object):
+    """
+    Simplified confusion matrix for tracking training metrics.
+    """
     def __init__(self, num_classes):
+        """
+        Initialize training metrics tracker.
+        
+        Args:
+            num_classes: Total number of classes
+        """
         self.num_classes = num_classes
         self.mat = None
 
     def update(self, a, b):
+        """
+        Update matrix with batch of actual and predicted labels.
+        
+        Args:
+            a: Ground truth labels
+            b: Predicted labels
+        """
         n = self.num_classes
         if self.mat is None:
             self.mat = torch.zeros((n, n), dtype=torch.int64, device=a.device)
+        
         with torch.no_grad():
             k = (a >= 0) & (a < n)
             inds = n * a[k].to(torch.int64) + b[k]
-            self.mat += torch.bincount(inds, minlength=n ** 2).reshape(n, n)
+            self.mat += torch.bincount(inds, minlength=n**2).reshape(n, n)
+    
     def compute(self):
+        """
+        Compute accuracy and F1 score from the matrix.
+        
+        Returns:
+            tuple: (accuracy, average F1 score)
+        """
         if self.mat is None:
             return 0.0, 0.0
+            
         h = self.mat.float()
         acc_global = (torch.diag(h).sum() / h.sum()).item()
         sum_f1_score = 0
@@ -98,7 +147,10 @@ class TrainMatrix(object):
             sum_f1_score += f1_score
 
         avg_f1_score = (sum_f1_score / self.num_classes).item()
-        return acc_global, avg_f1_score  # Ensure both are floats
+        return acc_global, avg_f1_score  # Return as floats
 
     def reset(self):
+        """
+        Reset the matrix to None.
+        """
         self.mat = None

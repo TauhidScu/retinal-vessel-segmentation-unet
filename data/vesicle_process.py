@@ -11,10 +11,17 @@ import matplotlib.pyplot as plt
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger()
 
+
 def data_loader(db_name: str, root: str) -> str:
     """
+    Get the data location for the specified database.
+    
+    Parameters:
+        db_name (str): Name of the database
+        root (str): Root directory path
+    
     Returns:
-    - data_location (str): The location of the data for the specified database.
+        str: The full path to the database
     """
     database_paths = {
         'ERM_W': '/ERM_W',
@@ -22,26 +29,36 @@ def data_loader(db_name: str, root: str) -> str:
         'erm': '/erm',
         'DRIVE': '/DRIVE',
         'vesicles': '/vesicles',
-        
     }
+    
     if db_name in database_paths:
         return root + database_paths[db_name]
     else:
         raise ValueError(f"Invalid database name provided: {db_name}")
 
+
 def match_images_and_labels(image_dir, label_dir):
     """
-    Match the images and labels by filename and log mismatches.
+    Match the images and labels by filename and log any mismatches.
+    
+    Parameters:
+        image_dir (str): Directory containing images
+        label_dir (str): Directory containing labels
+        
+    Returns:
+        bool: True if all images have matching labels, False otherwise
     """
-    # Get the list of image and label filenames (excluding file extensions)
-    image_files = sorted([os.path.splitext(f)[0] for f in os.listdir(image_dir) if os.path.isfile(os.path.join(image_dir, f))])
-    label_files = sorted([os.path.splitext(f)[0] for f in os.listdir(label_dir) if os.path.isfile(os.path.join(label_dir, f))])
+    # Get filenames without extensions
+    image_files = sorted([os.path.splitext(f)[0] for f in os.listdir(image_dir) 
+                         if os.path.isfile(os.path.join(image_dir, f))])
+    label_files = sorted([os.path.splitext(f)[0] for f in os.listdir(label_dir) 
+                         if os.path.isfile(os.path.join(label_dir, f))])
 
-    # Log the total number of files
+    # Log counts
     logger.info(f"Total images found: {len(image_files)}")
     logger.info(f"Total labels found: {len(label_files)}")
 
-    # Ensure both directories have the same number of files and match by name
+    # Find mismatches
     missing_labels = []
     missing_images = []
 
@@ -64,86 +81,75 @@ def match_images_and_labels(image_dir, label_dir):
         return True
 
 
-# Example usage
 def read_folder(db_name, root, mode, use_masks=None):
     """
-    Reads folders for images, preprocessed, labels.
+    Read folders for images, masks (optional), and labels.
 
     Parameters:
-    - db_name (str): Name of the database.
-    - root (str): Root directory location.
-    - mode (str): Mode of data ('train', 'validate', 'test').
-    - use_masks (bool): Whether to use masks (default is None).
+        db_name (str): Name of the database
+        root (str): Root directory location
+        mode (str): Data split ('train', 'validate', 'test')
+        use_masks (bool): Whether to use masks
 
     Returns:
-    - images_loc (str): Location of images directory.
-    - label_loc (str): Location of labels directory.
+        tuple: Paths to image, mask (if use_masks), and label directories
     """
     data_location = data_loader(db_name, root)
 
-    if mode == 'train':
-        logger.info('Loading train data!')
+    if mode in ['train', 'validate', 'test']:
+        logger.info(f'Loading {mode} data!')
+        
+        # Set directory paths based on mode
+        base_dir = data_location + f'/{mode}'
+        image_dir = base_dir + '/images/'
+        label_dir = base_dir + '/labels/'
+        
+        # Verify images and labels match
+        match_images_and_labels(image_dir, label_dir)
+        
+        # Return with or without masks
         if use_masks is not None:
-            image_dir = data_location + '/train/images/'
-            mask_dir = data_location + '/train/masks/'
-            label_dir = data_location + '/train/labels/'
-            match_images_and_labels(image_dir, label_dir)  # Check matching images and labels
+            mask_dir = base_dir + '/masks/'
             return image_dir, mask_dir, label_dir
         else:
-            image_dir = data_location + '/train/images/'
-            label_dir = data_location + '/train/labels/'
-            match_images_and_labels(image_dir, label_dir)  # Check matching images and labels
-            return image_dir, label_dir
-
-    elif mode == 'validate':
-        logger.info('Loading val data!')
-        if use_masks is not None:
-            image_dir = data_location + '/validate/images/'
-            mask_dir = data_location + '/validate/masks/'
-            label_dir = data_location + '/validate/labels/'
-            match_images_and_labels(image_dir, label_dir)  # Check matching images and labels
-            return image_dir, mask_dir, label_dir
-        else:
-            image_dir = data_location + '/validate/images/'
-            label_dir = data_location + '/validate/labels/'
-            match_images_and_labels(image_dir, label_dir)  # Check matching images and labels
-            return image_dir, label_dir
-
-    elif mode == 'test':
-        logger.info('Loading test data!')
-        if use_masks is not None:
-            image_dir = data_location + '/test/images/'
-            mask_dir = data_location + '/test/masks/'
-            label_dir = data_location + '/test/labels/'
-            match_images_and_labels(image_dir, label_dir)  # Check matching images and labels
-            return image_dir, mask_dir, label_dir
-        else:
-            image_dir = data_location + '/test/images/'
-            label_dir = data_location + '/test/labels/'
-            match_images_and_labels(image_dir, label_dir)  # Check matching images and labels
             return image_dir, label_dir
     else:
-        logger.error('Data location error!')
+        logger.error('Invalid mode specified!')
+        raise ValueError(f"Invalid mode provided: {mode}")
+
 
 class ResizeTransform:
+    """
+    Transform to resize and process image and label pairs consistently.
+    """
     def __init__(self, size, fill=0):
+        """
+        Initialize with target size and fill value for padding.
+        """
         self.size = size
         self.fill = fill
 
     def __call__(self, image, label):
-        # Resize each image type without changing its channel format
+        """
+        Apply transformations to both image and label.
+        """
         image = self.resize_image(image)
         label = self.resize_image(label)
         return image, label
 
     def resize_image(self, img):
+        """
+        Complete resize pipeline for an image.
+        """
         img = self.resize_and_maintain_aspect_ratio(img, self.size)
         img = self.pad_if_smaller(img, self.size, fill=self.fill)
-        # Center crop is applied uniformly here; adjust if necessary
         img = self.center_crop(img, self.size)
         return img
 
     def resize_and_maintain_aspect_ratio(self, img, target_size):
+        """
+        Resize image while maintaining aspect ratio.
+        """
         original_width, original_height = img.size
         target_width, target_height = target_size
 
@@ -152,77 +158,97 @@ class ResizeTransform:
         new_height = int(original_height * ratio)
 
         img = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
-
         return img
 
     def center_crop(self, img, target_size):
+        """
+        Crop image to target size from the center.
+        """
         img_width, img_height = img.size
         target_width, target_height = target_size
 
         crop_width = (img_width - target_width) // 2
         crop_height = (img_height - target_height) // 2
 
-        return img.crop((crop_width, crop_height, crop_width + target_width, crop_height + target_height))
+        return img.crop((crop_width, crop_height, 
+                        crop_width + target_width, 
+                        crop_height + target_height))
 
     @staticmethod
     def pad_if_smaller(img, size, fill=0):
+        """
+        Pad image if smaller than target size.
+        """
         ow, oh = img.size
         padh = size[1] - oh if oh < size[1] else 0
         padw = size[0] - ow if ow < size[0] else 0
         img = ImageOps.expand(img, border=(padw, padh), fill=fill)
         return img
 
+
 class VesicleSegmentationDataset(Dataset):
-    def __init__(self, db_name, root, mode, transform=None, desired_height=1024, desired_width=1536, use_masks=None):
+    """
+    Dataset for vesicle segmentation with support for masks.
+    """
+    def __init__(self, db_name, root, mode, transform=None, 
+                 desired_height=1024, desired_width=1536, use_masks=None):
+        """
+        Initialize dataset with paths and transforms.
+        """
         self.use_masks = use_masks
-        self.mode = mode  # Store mode as an attribute
+        self.mode = mode
+        
+        # Load file paths based on whether masks are used
         if self.use_masks is not None:
             images_loc, masks_loc, labels_loc = read_folder(db_name, root, mode, self.use_masks)
-            self.images = [os.path.join(images_loc, f) for f in sorted(os.listdir(images_loc)) if os.path.isfile(os.path.join(images_loc, f))]
-            self.masks = [os.path.join(masks_loc, f) for f in sorted(os.listdir(masks_loc)) if os.path.isfile(os.path.join(masks_loc, f))]
-            self.labels = [os.path.join(labels_loc, f) for f in sorted(os.listdir(labels_loc)) if os.path.isfile(os.path.join(labels_loc, f))]
+            self.images = [os.path.join(images_loc, f) for f in sorted(os.listdir(images_loc)) 
+                          if os.path.isfile(os.path.join(images_loc, f))]
+            self.masks = [os.path.join(masks_loc, f) for f in sorted(os.listdir(masks_loc)) 
+                         if os.path.isfile(os.path.join(masks_loc, f))]
+            self.labels = [os.path.join(labels_loc, f) for f in sorted(os.listdir(labels_loc)) 
+                          if os.path.isfile(os.path.join(labels_loc, f))]
         else:
             images_loc, labels_loc = read_folder(db_name, root, mode)
-            self.images = [os.path.join(images_loc, f) for f in sorted(os.listdir(images_loc)) if os.path.isfile(os.path.join(images_loc, f))]
-            self.labels = [os.path.join(labels_loc, f) for f in sorted(os.listdir(labels_loc)) if os.path.isfile(os.path.join(labels_loc, f))]
+            self.images = [os.path.join(images_loc, f) for f in sorted(os.listdir(images_loc)) 
+                          if os.path.isfile(os.path.join(images_loc, f))]
+            self.labels = [os.path.join(labels_loc, f) for f in sorted(os.listdir(labels_loc)) 
+                          if os.path.isfile(os.path.join(labels_loc, f))]
 
-         # Check that the number of images matches the number of labels
+        # Verify matching counts
         if len(self.images) != len(self.labels):
             logger.error(f"Number of images: {len(self.images)} does not match number of labels: {len(self.labels)}")
         else:
             logger.info(f"Number of images: {len(self.images)} matches number of labels: {len(self.labels)}")
-
         
+        # Set transform
         if transform is None:
             self.transform = ResizeTransform(size=(desired_width, desired_height))
         else:
             self.transform = transform
 
     def __len__(self):
+        """
+        Return the total number of samples in the dataset.
+        """
         return len(self.images)
 
     @staticmethod
     def process_images(image, label):
+        """
+        Process images and labels for model input.
+        
+        Converts PIL images to tensors with proper normalization and dimensions.
+        """
         # Convert PIL Images to numpy arrays
         image_np = np.array(image, dtype=np.float32)
-        label_np = np.array(label, dtype=np.int64)  # Use int64 for multi-class labels (0, 1, 2, 3)
-
-        #print(f"Max pixel value in original image: {np.max(image)}")
-        #print(f"Max pixel value in original label: {np.max(label)}")
-        #print('Image shape before processing: ', image_np.shape)       
-        #print('Label shape before processing: ', label_np.shape)
+        label_np = np.array(label, dtype=np.int64)  # Use int64 for multi-class labels
 
         # Normalize the images to [0, 1]
         image_np /= 255.0
 
         # Handle RGB images (3 channels), convert from HWC to CHW format
         if image_np.ndim == 3 and image_np.shape[2] == 3:
-            image_np = np.moveaxis(image_np, -1, 0)  # Moves the last axis to the first position
-
-        # Since the label is already in the correct format, no need for expansion or squeeze
-        # The label should remain as [batch_size, height, width]
-        #print(f"Max pixel value in processed image: {np.max(image_np)}")
-        #print(f"Max pixel value in processed label: {np.max(label_np)}")
+            image_np = np.moveaxis(image_np, -1, 0)  # Moves channels to first dimension
 
         # Convert numpy arrays to PyTorch tensors
         image_tensor = torch.from_numpy(image_np)
@@ -231,15 +257,18 @@ class VesicleSegmentationDataset(Dataset):
         return image_tensor, label_tensor
     
     def plot_image(self, image, label, title='Image and Label'):
-        # Convert the image to numpy for plotting
+        """
+        Plot image and label side by side for visualization.
+        """
+        # Convert tensors to numpy arrays
         if image.ndimension() == 3:  # Check if it's a 3-channel image
             image = image.numpy().transpose(1, 2, 0)  # Convert from (C, H, W) to (H, W, C)
         else:  # Grayscale image
-            image = image.numpy().squeeze()  # Remove extra channel dimension if grayscale
+            image = image.numpy().squeeze()
+            
+        label = label.numpy().squeeze()
 
-        label = label.numpy().squeeze()  # Convert label to numpy and remove extra channel if needed
-
-        # Plot image and label side by side
+        # Create plot
         fig, ax = plt.subplots(1, 2, figsize=(10, 5))
         ax[0].imshow(image, cmap='gray' if image.ndim == 2 else None)
         ax[0].set_title('Image')
@@ -248,26 +277,24 @@ class VesicleSegmentationDataset(Dataset):
         plt.suptitle(title)
         plt.show()
 
-
     def __getitem__(self, idx):
+        """
+        Get a sample from the dataset.
+        """
+        # Load images
         image = Image.open(self.images[idx])
         label = Image.open(self.labels[idx])
-        label = label.convert('L')  # Convert label to grayscale if it is not already
+        label = label.convert('L')  # Convert label to grayscale
         
-        # Apply the transformation
+        # Apply transformations
         image, label = self.transform(image, label)
         
-        # Process images (convert to numpy arrays, normalize, convert to tensors)
+        # Process images
         image, label = self.process_images(image, label)
-        filename = os.path.basename(self.images[idx])
+        
+        # For test mode, return filename too
         if self.mode == 'test':
+            filename = os.path.basename(self.images[idx])
             return image, label, filename
 
         return image, label
-
-# # Assuming you have defined your dataset and model
-# dataset = VesicleSegmentationDataset(db_name='Vesicles', root='D:/a', mode='train')
-# image, label = dataset[-6]
-
-# # Plot the first image and label
-# dataset.plot_image(image, label)

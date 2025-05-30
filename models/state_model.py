@@ -3,12 +3,11 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-
-#Required block for U-net, R2U-net, AttU-net and NestedUnet
+# Basic building blocks for U-Net architectures
 
 class conv_block(nn.Module):
     """
-    Convolution Block 
+    Convolution Block with two conv layers, batch norm and ReLU
     """
     def __init__(self, in_ch, out_ch):
         super(conv_block, self).__init__()
@@ -22,28 +21,27 @@ class conv_block(nn.Module):
         )
 
     def forward(self, x):
-        x = self.conv(x)
-        return x
+        return self.conv(x)
+
 
 class up_conv(nn.Module):
     """
-    Up Convolution Block
+    Up Convolution Block for decoder part
     """
     def __init__(self, in_ch, out_ch):
         super(up_conv, self).__init__()
         self.up = nn.ConvTranspose2d(in_ch, out_ch, kernel_size=2, stride=2)
 
     def forward(self, x):
-        x = self.up(x)
-        return x
+        return self.up(x)
+
 
 class Recurrent_block(nn.Module):
     """
-    Recurrent Block for R2Unet_CNN
+    Recurrent Block for R2Unet_CNN with residual connection
     """
     def __init__(self, out_ch, t=2):
         super(Recurrent_block, self).__init__()
-
         self.t = t
         self.out_ch = out_ch
         self.conv = nn.Sequential(
@@ -59,13 +57,13 @@ class Recurrent_block(nn.Module):
             out = self.conv(x + x)
         return out
 
+
 class RRCNN_block(nn.Module):
     """
     Recurrent Residual Convolutional Neural Network Block
     """
     def __init__(self, in_ch, out_ch, t=2):
         super(RRCNN_block, self).__init__()
-
         self.RCNN = nn.Sequential(
             Recurrent_block(out_ch, t=t),
             Recurrent_block(out_ch, t=t)
@@ -78,30 +76,26 @@ class RRCNN_block(nn.Module):
         out = x1 + x2
         return out
 
+
 class Attention_block(nn.Module):
     """
-    Attention Block
+    Attention Block for attention-guided refinement
     """
-
     def __init__(self, F_g, F_l, F_int):
         super(Attention_block, self).__init__()
-
         self.W_g = nn.Sequential(
             nn.Conv2d(F_l, F_int, kernel_size=1, stride=1, padding=0, bias=True),
             nn.BatchNorm2d(F_int)
         )
-
         self.W_x = nn.Sequential(
             nn.Conv2d(F_g, F_int, kernel_size=1, stride=1, padding=0, bias=True),
             nn.BatchNorm2d(F_int)
         )
-
         self.psi = nn.Sequential(
             nn.Conv2d(F_int, 1, kernel_size=1, stride=1, padding=0, bias=True),
             nn.BatchNorm2d(1),
             nn.Sigmoid()
         )
-
         self.relu = nn.ReLU(inplace=True)
 
     def forward(self, g, x):
@@ -111,9 +105,12 @@ class Attention_block(nn.Module):
         psi = self.psi(psi)
         out = x * psi
         return out
-#For nested 3 channels are required
+
+
 class conv_block_nested(nn.Module):
-    
+    """
+    Nested convolution block for Nested U-Net
+    """
     def __init__(self, in_ch, mid_ch, out_ch):
         super(conv_block_nested, self).__init__()
         self.activation = nn.ReLU(inplace=True)
@@ -133,31 +130,13 @@ class conv_block_nested(nn.Module):
 
         return output
 
-class conv_block_nested(nn.Module):
-    
-    def __init__(self, in_ch, mid_ch, out_ch):
-        super(conv_block_nested, self).__init__()
-        self.activation = nn.ReLU(inplace=True)
-        self.conv1 = nn.Conv2d(in_ch, mid_ch, kernel_size=3, padding=1, bias=True)
-        self.bn1 = nn.BatchNorm2d(mid_ch)
-        self.conv2 = nn.Conv2d(mid_ch, out_ch, kernel_size=3, padding=1, bias=True)
-        self.bn2 = nn.BatchNorm2d(out_ch)
 
-    def forward(self, x):
-        x = self.conv1(x)
-        x = self.bn1(x)
-        x = self.activation(x)
-        
-        x = self.conv2(x)
-        x = self.bn2(x)
-        output = self.activation(x)
-
-        return output
+# Network Architectures
 
 class U_Net(nn.Module):
     """
-    UNet - Basic Implementation
-    Paper : https://arxiv.org/abs/1505.04597
+    Standard U-Net Implementation
+    Paper: https://arxiv.org/abs/1505.04597
     """
     def __init__(self, in_ch=3, out_ch=1):
         super(U_Net, self).__init__()
@@ -165,17 +144,20 @@ class U_Net(nn.Module):
         n1 = 16
         filters = [n1, n1 * 2, n1 * 4, n1 * 8, n1 * 16]
         
+        # Encoder downsampling
         self.Maxpool1 = nn.MaxPool2d(kernel_size=2, stride=2)
         self.Maxpool2 = nn.MaxPool2d(kernel_size=2, stride=2)
         self.Maxpool3 = nn.MaxPool2d(kernel_size=2, stride=2)
         self.Maxpool4 = nn.MaxPool2d(kernel_size=2, stride=2)
 
+        # Encoder blocks
         self.Conv1 = conv_block(in_ch, filters[0])
         self.Conv2 = conv_block(filters[0], filters[1])
         self.Conv3 = conv_block(filters[1], filters[2])
         self.Conv4 = conv_block(filters[2], filters[3])
         self.Conv5 = conv_block(filters[3], filters[4])
 
+        # Decoder upsampling
         self.Up5 = up_conv(filters[4], filters[3])
         self.Up_conv5 = conv_block(filters[4], filters[3])
 
@@ -188,12 +170,12 @@ class U_Net(nn.Module):
         self.Up2 = up_conv(filters[1], filters[0])
         self.Up_conv2 = conv_block(filters[1], filters[0])
 
+        # Output layer
         self.Conv = nn.Conv2d(filters[0], out_ch, kernel_size=1, stride=1, padding=0)
-
         self.active = torch.nn.Sigmoid()
 
     def forward(self, x):
-
+        # Encoder pathway
         e1 = self.Conv1(x)
 
         e2 = self.Maxpool1(e1)
@@ -208,9 +190,9 @@ class U_Net(nn.Module):
         e5 = self.Maxpool4(e4)
         e5 = self.Conv5(e5)
 
+        # Decoder pathway with skip connections
         d5 = self.Up5(e5)
         d5 = torch.cat((e4, d5), dim=1)
-
         d5 = self.Up_conv5(d5)
 
         d4 = self.Up4(d5)
@@ -226,14 +208,14 @@ class U_Net(nn.Module):
         d2 = self.Up_conv2(d2)
 
         out = self.Conv(d2)
+        out = self.active(out)
 
-        d1 = self.active(out)
+        return out
 
-        return d1
 
 class R2U_Net(nn.Module):
     """
-    R2U-Unet implementation
+    R2U-Unet implementation with recurrent residual blocks
     Paper: https://arxiv.org/abs/1802.06955
     """
     def __init__(self, img_ch=3, output_ch=1, t=2):
@@ -242,23 +224,21 @@ class R2U_Net(nn.Module):
         n1 = 16
         filters = [n1, n1 * 2, n1 * 4, n1 * 8, n1 * 16]
 
+        # Downsampling operations
         self.Maxpool = nn.MaxPool2d(kernel_size=2, stride=2)
         self.Maxpool1 = nn.MaxPool2d(kernel_size=2, stride=2)
         self.Maxpool2 = nn.MaxPool2d(kernel_size=2, stride=2)
         self.Maxpool3 = nn.MaxPool2d(kernel_size=2, stride=2)
-
         self.Upsample = nn.Upsample(scale_factor=2)
 
+        # Encoder RRCNN blocks
         self.RRCNN1 = RRCNN_block(img_ch, filters[0], t=t)
-
         self.RRCNN2 = RRCNN_block(filters[0], filters[1], t=t)
-
         self.RRCNN3 = RRCNN_block(filters[1], filters[2], t=t)
-
         self.RRCNN4 = RRCNN_block(filters[2], filters[3], t=t)
-
         self.RRCNN5 = RRCNN_block(filters[3], filters[4], t=t)
 
+        # Decoder blocks
         self.Up5 = up_conv(filters[4], filters[3])
         self.Up_RRCNN5 = RRCNN_block(filters[4], filters[3], t=t)
 
@@ -271,13 +251,12 @@ class R2U_Net(nn.Module):
         self.Up2 = up_conv(filters[1], filters[0])
         self.Up_RRCNN2 = RRCNN_block(filters[1], filters[0], t=t)
 
+        # Output layer
         self.Conv = nn.Conv2d(filters[0], output_ch, kernel_size=1, stride=1, padding=0)
-
-       # self.active = torch.nn.Sigmoid()
-
+        # self.active = torch.nn.Sigmoid()
 
     def forward(self, x):
-
+        # Encoder pathway
         e1 = self.RRCNN1(x)
 
         e2 = self.Maxpool(e1)
@@ -292,6 +271,7 @@ class R2U_Net(nn.Module):
         e5 = self.Maxpool3(e4)
         e5 = self.RRCNN5(e5)
 
+        # Decoder pathway with skip connections
         d5 = self.Up5(e5)
         d5 = torch.cat((e4, d5), dim=1)
         d5 = self.Up_RRCNN5(d5)
@@ -309,8 +289,7 @@ class R2U_Net(nn.Module):
         d2 = self.Up_RRCNN2(d2)
 
         out = self.Conv(d2)
-
-      # out = self.active(out)
+        # out = self.active(out)
 
         return out
 
@@ -318,22 +297,28 @@ class R2U_Net(nn.Module):
 class AttU_Net(nn.Module):
     """
     Attention U-Net implementation
+    Paper: https://arxiv.org/abs/1804.03999
     """
     def __init__(self, in_ch=3, output_ch=1):
         super(AttU_Net, self).__init__()
-        # [rest of the initialization code]
+        
         n1 = 16
         filters = [n1, n1 * 2, n1 * 4, n1 * 8, n1 * 16]
+        
+        # Encoder downsampling
         self.Maxpool1 = nn.MaxPool2d(kernel_size=2, stride=2)
         self.Maxpool2 = nn.MaxPool2d(kernel_size=2, stride=2)
         self.Maxpool3 = nn.MaxPool2d(kernel_size=2, stride=2)
         self.Maxpool4 = nn.MaxPool2d(kernel_size=2, stride=2)
+        
+        # Encoder blocks
         self.conv1 = conv_block(in_ch, filters[0])
         self.conv2 = conv_block(filters[0], filters[1])
         self.conv3 = conv_block(filters[1], filters[2])
         self.conv4 = conv_block(filters[2], filters[3])
         self.conv5 = conv_block(filters[3], filters[4])
 
+        # Decoder with attention blocks
         self.Up5 = up_conv(filters[4], filters[3])
         self.Att5 = Attention_block(F_g=filters[3], F_l=filters[3], F_int=filters[2])
         self.Up_conv5 = conv_block(filters[4], filters[3])
@@ -350,11 +335,12 @@ class AttU_Net(nn.Module):
         self.Att2 = Attention_block(F_g=filters[0], F_l=filters[0], F_int=32)
         self.Up_conv2 = conv_block(filters[1], filters[0])
 
+        # Output layer
         self.Conv = nn.Conv2d(filters[0], output_ch, kernel_size=1, stride=1, padding=0)
         self.active = torch.nn.Sigmoid()
 
     def forward(self, x):
-        # Encoder path
+        # Encoder pathway
         e1 = self.conv1(x)
         e2 = self.Maxpool1(e1)
         e2 = self.conv2(e2)
@@ -365,7 +351,7 @@ class AttU_Net(nn.Module):
         e5 = self.Maxpool4(e4)
         e5 = self.conv5(e5)
 
-        # Decoder path
+        # Decoder with attention
         d5 = self.Up5(e5)
         x4 = self.Att5(g=d5, x=e4)
         d5 = torch.cat((x4, d5), dim=1)
@@ -386,16 +372,16 @@ class AttU_Net(nn.Module):
         d2 = torch.cat((x1, d2), dim=1)
         d2 = self.Up_conv2(d2)
 
-        # Output layer
         out = self.Conv(d2)
         out = self.active(out)
 
         return out
-#For nested 3 channels are required
+
+
 class NestedUNet(nn.Module):
     """
-    Implementation of this paper:
-    https://arxiv.org/pdf/1807.10165.pdf
+    UNet++ (Nested U-Net) Implementation
+    Paper: https://arxiv.org/pdf/1807.10165.pdf
     """
     def __init__(self, in_ch=3, out_ch=1):
         super(NestedUNet, self).__init__()
@@ -403,80 +389,66 @@ class NestedUNet(nn.Module):
         n1 = 16
         filters = [n1, n1 * 2, n1 * 4, n1 * 8, n1 * 16]
 
+        # Common operations
         self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
         self.Up = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)
 
+        # First level - depth 0
         self.conv0_0 = conv_block_nested(in_ch, filters[0], filters[0])
         self.conv1_0 = conv_block_nested(filters[0], filters[1], filters[1])
         self.conv2_0 = conv_block_nested(filters[1], filters[2], filters[2])
         self.conv3_0 = conv_block_nested(filters[2], filters[3], filters[3])
         self.conv4_0 = conv_block_nested(filters[3], filters[4], filters[4])
 
+        # Second level - depth 1
         self.conv0_1 = conv_block_nested(filters[0] + filters[1], filters[0], filters[0])
         self.conv1_1 = conv_block_nested(filters[1] + filters[2], filters[1], filters[1])
         self.conv2_1 = conv_block_nested(filters[2] + filters[3], filters[2], filters[2])
         self.conv3_1 = conv_block_nested(filters[3] + filters[4], filters[3], filters[3])
 
+        # Third level - depth 2
         self.conv0_2 = conv_block_nested(filters[0]*2 + filters[1], filters[0], filters[0])
         self.conv1_2 = conv_block_nested(filters[1]*2 + filters[2], filters[1], filters[1])
         self.conv2_2 = conv_block_nested(filters[2]*2 + filters[3], filters[2], filters[2])
 
+        # Fourth level - depth 3
         self.conv0_3 = conv_block_nested(filters[0]*3 + filters[1], filters[0], filters[0])
         self.conv1_3 = conv_block_nested(filters[1]*3 + filters[2], filters[1], filters[1])
 
+        # Fifth level - depth 4 (deepest)
         self.conv0_4 = conv_block_nested(filters[0]*4 + filters[1], filters[0], filters[0])
 
+        # Output layer
         self.final = nn.Conv2d(filters[0], out_ch, kernel_size=1)
         self.active = torch.nn.Sigmoid()
 
     def forward(self, x):
+        # Column 0 - encoding pathway
         x0_0 = self.conv0_0(x)
         x1_0 = self.conv1_0(self.pool(x0_0))
-        x0_1 = self.conv0_1(torch.cat([x0_0, self.Up(x1_0)], 1))
-
         x2_0 = self.conv2_0(self.pool(x1_0))
-        x1_1 = self.conv1_1(torch.cat([x1_0, self.Up(x2_0)], 1))
-        x0_2 = self.conv0_2(torch.cat([x0_0, x0_1, self.Up(x1_1)], 1))
-
         x3_0 = self.conv3_0(self.pool(x2_0))
-        x2_1 = self.conv2_1(torch.cat([x2_0, self.Up(x3_0)], 1))
-        x1_2 = self.conv1_2(torch.cat([x1_0, x1_1, self.Up(x2_1)], 1))
-        x0_3 = self.conv0_3(torch.cat([x0_0, x0_1, x0_2, self.Up(x1_2)], 1))
-
         x4_0 = self.conv4_0(self.pool(x3_0))
+
+        # Column 1
+        x0_1 = self.conv0_1(torch.cat([x0_0, self.Up(x1_0)], 1))
+        x1_1 = self.conv1_1(torch.cat([x1_0, self.Up(x2_0)], 1))
+        x2_1 = self.conv2_1(torch.cat([x2_0, self.Up(x3_0)], 1))
         x3_1 = self.conv3_1(torch.cat([x3_0, self.Up(x4_0)], 1))
+
+        # Column 2
+        x0_2 = self.conv0_2(torch.cat([x0_0, x0_1, self.Up(x1_1)], 1))
+        x1_2 = self.conv1_2(torch.cat([x1_0, x1_1, self.Up(x2_1)], 1))
         x2_2 = self.conv2_2(torch.cat([x2_0, x2_1, self.Up(x3_1)], 1))
+
+        # Column 3
+        x0_3 = self.conv0_3(torch.cat([x0_0, x0_1, x0_2, self.Up(x1_2)], 1))
         x1_3 = self.conv1_3(torch.cat([x1_0, x1_1, x1_2, self.Up(x2_2)], 1))
+
+        # Column 4 (deepest)
         x0_4 = self.conv0_4(torch.cat([x0_0, x0_1, x0_2, x0_3, self.Up(x1_3)], 1))
 
         output = self.final(x0_4)
         output = self.active(output)
+        
         return output
-
-
-# # Define dummy input (Batch Size = 1, Channels = 3, Height = 256, Width = 256)
-# dummy_input = torch.randn(1, 3, 256, 256)
-
-# # Test U-Net
-# print("Testing U-Net...")
-# unet = U_Net(in_ch=3, out_ch=1)
-# output_unet = unet(dummy_input)
-# print(f"U-Net Output Shape: {output_unet.shape}")
-
-# # Test R2U-Net
-# print("\nTesting R2U-Net...")
-# r2unet = R2U_Net(img_ch=3, output_ch=1, t=2)
-# output_r2unet = r2unet(dummy_input)
-# print(f"R2U-Net Output Shape: {output_r2unet.shape}")
-
-# # Test Attention U-Net
-# print("\nTesting Attention U-Net...")
-# attunet = AttU_Net(in_ch=3, output_ch=1)
-# output_attunet = attunet(dummy_input)
-# print(f"Attention U-Net Output Shape: {output_attunet.shape}")
-
-# # Test Nested U-Net
-# print("\nTesting Nested U-Net...")
-# nested_unet = NestedUNet(in_ch=3, out_ch=1)
-# output_nested_unet = nested_unet(dummy_input)
-# print(f"Nested U-Net Output Shape: {output_nested_unet.shape}")
