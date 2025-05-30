@@ -33,6 +33,7 @@ datasets/*/images/
 datasets/*/masks/
 datasets/*/annotations/
 *.png
+!**/assets/**/*.png
 *.jpg
 *.jpeg
 *.bmp
