@@ -33,7 +33,7 @@
 
 ## Research Background
 
-This project represents a **collaborative research initiative** between the **Machine Intelligence Lab** and **Sichuan University's Department of Ophthalmology**, focusing on advanced deep learning solutions for retinal image analysis.
+This project represents a **collaborative research initiative** between the **Machine Intelligence Lab and  Department of Ophthalmology**, Sichuan University focusing on advanced deep learning solutions for OCT image analysis.
 
 ![Processed Image and Label](/assets/processed_image_label.png)
 *Processed OCT image and corresponding segmentation mask from our ERM dataset, demonstrating the input-output relationship of our segmentation pipeline*
@@ -69,8 +69,14 @@ OCT imaging has revolutionized retinal diagnosis, but manual analysis remains ti
 ### 🧠 **Advanced Deep Learning Architectures**
 
 - **U-Net (Standard)**: Robust baseline for medical image segmentation [[1]](https://link.springer.com/chapter/10.1007/978-3-319-24574-4_28)
+        
+        
 - **Nested U-Net (U-Net++)**: Enhanced feature propagation through dense skip connections [[2]](https://link.springer.com/chapter/10.1007/978-3-030-00889-5_1)
+        
+        
 - **Attention U-Net**: Focused feature learning with attention mechanisms [[3]](https://doi.org/10.48550/arXiv.1804.03999)
+        
+        
 - **Spatial Attention U-Net (SAUNet)**: Advanced spatial attention for precise localization [[4]](https://ieeexplore.ieee.org/document/9413346)
 - **ResNet U-Net**: Residual connections enabling deeper network training [[5]](https://ieeexplore.ieee.org/document/7780459)
 
