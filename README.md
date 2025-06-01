@@ -34,29 +34,16 @@
 ## Research Background
 
 This project represents a **collaborative research initiative** between the **Machine Intelligence Lab and  Department of Ophthalmology**, Sichuan University focusing on advanced deep learning solutions for OCT image analysis.
-
-![Processed Image and Label](/assets/processed_image_label.png)
-*Processed OCT image and corresponding segmentation mask from our ERM dataset, demonstrating the input-output relationship of our segmentation pipeline*
+It mainly includes data collection, data aannotation, data processing, model design and validation where data collection and data annotation is handaled by the expert from west school of Ophthalmology. 
 
 ### **Research Objectives**
 
 Our comprehensive framework addresses critical challenges in ophthalmology through:
 
-- **🩺 Retinal Vessel Segmentation**: Precise identification and delineation of vascular structures
-- **🔍 Epiretinal Membrane Detection**: Automated detection and quantification of pathological membranes  
-- **👁️ Retinal Structure Analysis**: Complete anatomical segmentation for clinical assessment
-- **🧬 Vesicle Classification**: Multi-class segmentation of retinal layers and components
+- **🔍 Epiretinal Membrane Segmentation**: Automated segmentation and quantification of pathological membranes  
+- **👁️ Retina segmentation**: Complete anatomical segmentation for clinical assessment
+- **🧬 Vesicles(Cyst)**: Binary and Multi-class segmentation of vesicles components distributed in different layers
 
-### **Clinical Significance**
-
-OCT imaging has revolutionized retinal diagnosis, but manual analysis remains time-consuming and subjective. Our automated framework provides:
-
-- **Consistent diagnostic criteria** across different observers
-- **Quantitative biomarkers** for disease progression monitoring
-- **Real-time analysis** for clinical workflow integration
-- **Standardized reporting** for multi-center studies
-
----
 
 ## Key Features
 
@@ -111,17 +98,6 @@ graph TD
     J --> K[Clinical Output]
 ```
 
-### **Technical Specifications**
-
-| Component | Technology | Purpose |
-|-----------|------------|---------|
-| **Preprocessing** | Otsu Thresholding + Contour Detection | Image standardization |
-| **Feature Extraction** | Multi-scale CNN blocks | Hierarchical feature learning |
-| **Attention Mechanism** | Spatial + Channel Attention | Relevant region focus |
-| **Skip Connections** | Dense + Standard | Information preservation |
-| **Loss Functions** | Dice + Focal Loss | Class imbalance handling |
-
----
 
 ## Quick Start
 
@@ -193,9 +169,7 @@ conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvi
 
 ## Dataset Information
 
-### **Collaborative Dataset Collection**
-
-Our datasets were collected through the **Machine Intelligence Lab** and **Sichuan University** collaboration, ensuring high-quality clinical annotations.
+The dataset was collected following standard regulation and the dataset is private.
 
 | Dataset | Total Images | Resolution | Task Type | Clinical Focus |
 |---------|-------------|------------|-----------|----------------|
@@ -203,36 +177,9 @@ Our datasets were collected through the **Machine Intelligence Lab** and **Sichu
 | **Retina** | 663 | 1536×1024 | Binary Segmentation | Complete Retinal Boundary |
 | **Vesicles** | 694 | 1536×1024 | Multi-class | Layer 2 & 4 Vesicle Classification |
 
-### **Dataset Distribution**
-
-#### **ERM Dataset**
-
-| Split | Images | Percentage |
-|-------|--------|------------|
-| **Train** | 271 | 74.7% |
-| **Validate** | 73 | 20.1% |
-| **Test** | 19 | 5.2% |
-
-#### **Retina Dataset**
-
-| Split | Images | Percentage |
-|-------|--------|------------|
-| **Train** | 498 | 75.1% |
-| **Validate** | 130 | 19.6% |
-| **Test** | 35 | 5.3% |
-
-#### **Vesicles Dataset**
-
-| Split | Images | Percentage |
-|-------|--------|------------|
-| **Train** | 520 | 75.0% |
-| **Validate** | 139 | 20.0% |
-| **Test** | 35 | 5.0% |
-
----
 
 ## Model Architectures
-
+Al the models were implemented following the original paper.
 ### **Implemented Models**
 
 #### **1. U-Net (Baseline)** [[1]](https://link.springer.com/chapter/10.1007/978-3-319-24574-4_28)
@@ -240,35 +187,30 @@ Our datasets were collected through the **Machine Intelligence Lab** and **Sichu
 - **Architecture**: Standard encoder-decoder with skip connections
 - **Strengths**: Robust performance, well-established baseline
 - **Best for**: General segmentation tasks
-- **Innovation**: Contracting path for context capture and symmetric expanding path for precise localization
 
 #### **2. Nested U-Net (U-Net++)** [[2]](https://link.springer.com/chapter/10.1007/978-3-030-00889-5_1)
 
 - **Architecture**: Dense skip connections between encoder-decoder paths
 - **Strengths**: Enhanced feature reuse, improved gradient flow
 - **Best for**: Complex boundary detection
-- **Innovation**: Nested, dense skip pathways to reduce semantic gaps between feature maps
 
 #### **3. Attention U-Net** [[3]](https://doi.org/10.48550/arXiv.1804.03999)
 
 - **Architecture**: Attention gates integrated into U-Net structure
 - **Strengths**: Focused learning on relevant regions
 - **Best for**: Noisy images with subtle pathologies
-- **Innovation**: Automatic learning to focus on target structures while suppressing irrelevant regions
 
 #### **4. Spatial Attention U-Net (SAUNet)** [[4]](https://ieeexplore.ieee.org/document/9413346)
 
 - **Architecture**: Spatial attention gates with DropBlock regularization
 - **Strengths**: Precise spatial localization, overfitting prevention
 - **Best for**: High-precision segmentation tasks
-- **Innovation**: Specialized spatial attention mechanisms for retinal vessel segmentation
 
 #### **5. ResNet U-Net** [[5]](https://ieeexplore.ieee.org/document/7780459)
 
 - **Architecture**: ResNet18 encoder with U-Net decoder
 - **Strengths**: Deep feature extraction, pre-trained weights
 - **Best for**: Transfer learning applications
-- **Innovation**: Residual learning framework enabling training of deeper networks
 
 ---
 
@@ -280,7 +222,7 @@ Our datasets were collected through the **Machine Intelligence Lab** and **Sichu
 
 *Qualitative comparison of segmentation results across all implemented models. From top to bottom: Original OCT images, U-Net, Attention U-Net, U-Net++, SAUNet, ResNet U-Net, and Ground Truth (GT). The comparison demonstrates each model's ability to accurately delineate retinal boundaries, with visual assessment showing consistent performance across different architectures while highlighting subtle differences in boundary precision and noise handling.*
 
-### **Retina Dataset Performance**
+### **Retina segmentation Performance**
 
 | Model | F1 Score | Sensitivity | Specificity | Precision | IoU | Accuracy |
 |-------|----------|-------------|-------------|-----------|-----|----------|
@@ -290,7 +232,7 @@ Our datasets were collected through the **Machine Intelligence Lab** and **Sichu
 | **SAUNet** | 0.9524 | 0.9744 | 0.9904 | 0.9325 | 0.9105 | 0.9886 |
 | **ResNet U-Net** | 0.9319 | 0.9834 | **0.983** | 0.8904 | 0.8763 | 0.983 |
 
-### **Vesicles Dataset Performance**
+### **Multi-class vesicles(cysts) segmentation Performance**
 
 | Model | F1 Score | Sensitivity | Specificity | Precision | IoU | Accuracy |
 |-------|----------|-------------|-------------|-----------|-----|----------|
@@ -300,7 +242,7 @@ Our datasets were collected through the **Machine Intelligence Lab** and **Sichu
 | **SAUNet** | 0.7811 | 0.7237 | **0.9995** | 0.8532 | 0.6411 | 0.9983 |
 | **ResNet U-Net** | 0.7769 | 0.7394 | **0.9993** | 0.8322 | 0.6354 | 0.9983 |
 
-### **Vesicles Binary Classification Performance**
+### **Binary Vesicles segmentation Performance**
 
 | Model | F1 Score | Sensitivity | Specificity | Precision | IoU | Accuracy |
 |-------|----------|-------------|-------------|-----------|-----|----------|
@@ -341,22 +283,6 @@ The visual comparison reveals several key insights:
 - **Consistency**: Results show remarkable consistency across different retinal structures
 - **Clinical Viability**: Visual outputs closely match ground truth annotations, supporting clinical deployment
 
-### **Clinical Impact**
-
-- **Processing Speed**: 2.1 seconds per image
-- **Expert Agreement**: κ = 0.89 (substantial agreement)
-- **Clinical Workflow**: 78% reduction in analysis time
-- **Multi-center Validation**: Tested across 3 clinical sites
-- **Diagnostic Accuracy**: >97% agreement with expert annotations for retinal segmentation
-
-### **Cross-Dataset Performance Summary**
-
-| Dataset | Best Model | F1 Score | Clinical Application |
-|---------|------------|----------|---------------------|
-| **Retina** | U-Net | 0.9706 | Complete retinal boundary detection |
-| **Vesicles** | U-Net | 0.8177 | Multi-class vesicle segmentation |
-| **Vesicles Binary** | Attention U-Net | 0.7538 | Binary vesicle classification |
-
 ---
 
 ## Clinical Applications
@@ -383,14 +309,6 @@ The visual comparison reveals several key insights:
    - Layer thickness measurements
    - Structural integrity assessment
 
-### **Research Applications**
-
-- **Clinical Trial Endpoints**: Standardized outcome measurements
-- **Biomarker Discovery**: Novel quantitative metrics
-- **Multi-center Studies**: Consistent analysis protocols
-- **AI Development**: Training data for advanced models
-
----
 
 ## Code Privacy & Security
 
@@ -434,8 +352,6 @@ We actively seek partnerships with:
 - **Academic Institutions** for joint research projects
 - **Clinical Centers** for validation studies
 - **Technology Companies** for deployment and scaling
-- **Regulatory Bodies** for compliance and standardization
-
 ---
 
 ## References
@@ -455,8 +371,6 @@ We actively seek partnerships with:
 <div align="center">
 
 *Advancing Medical AI Through International Collaboration*
-
-**Developed through collaborative research between Machine Intelligence Lab and [Sichuan University](https://www.scu.edu.cn/)**
 
 </div>
 
