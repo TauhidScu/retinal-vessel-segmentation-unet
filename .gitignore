@@ -35,6 +35,7 @@ datasets/*/annotations/
 *.png
 !**/assets/**/*.png
 *.jpg
+!**/assets/**/*.jpg
 *.jpeg
 *.bmp
 *.gif

@@ -72,7 +72,7 @@ OCT imaging has revolutionized retinal diagnosis, but manual analysis remains ti
 - **Nested U-Net (U-Net++)**: Enhanced feature propagation through dense skip connections [[2]](https://link.springer.com/chapter/10.1007/978-3-030-00889-5_1)
 - **Attention U-Net**: Focused feature learning with attention mechanisms [[3]](https://doi.org/10.48550/arXiv.1804.03999)
 - **Spatial Attention U-Net (SAUNet)**: Advanced spatial attention for precise localization [[4]](https://ieeexplore.ieee.org/document/9413346)
-- **ResNet U-Net**: Residual connections enabling deeper network training [[5]]([#references](https://ieeexplore.ieee.org/document/7780459))
+- **ResNet U-Net**: Residual connections enabling deeper network training [[5]](https://ieeexplore.ieee.org/document/7780459)
 
 ### 📊 **Comprehensive Evaluation Framework**
 
@@ -268,6 +268,12 @@ Our datasets were collected through the **Machine Intelligence Lab** and **Sichu
 
 ## Results & Performance
 
+### **Qualitative Results Comparison**
+
+![Model Comparison Results](/assets/model_comparison_results.jpg)
+
+*Qualitative comparison of segmentation results across all implemented models. From top to bottom: Original OCT images, U-Net, Attention U-Net, U-Net++, SAUNet, ResNet U-Net, and Ground Truth (GT). The comparison demonstrates each model's ability to accurately delineate retinal boundaries, with visual assessment showing consistent performance across different architectures while highlighting subtle differences in boundary precision and noise handling.*
+
 ### **Retina Dataset Performance**
 
 | Model | F1 Score | Sensitivity | Specificity | Precision | IoU | Accuracy |
@@ -319,6 +325,15 @@ Our datasets were collected through the **Machine Intelligence Lab** and **Sichu
 - **Attention Mechanism Advantage**: Attention U-Net shows superior precision (0.7852) for binary classification
 - **Robust Specificity**: All models maintain >99.9% specificity, minimizing false positives
 - **Clinical Reliability**: Consistent high accuracy across all architectures ensures clinical viability
+
+### **Qualitative Analysis**
+
+The visual comparison reveals several key insights:
+
+- **Boundary Precision**: All models demonstrate excellent boundary delineation capabilities
+- **Noise Handling**: Attention mechanisms (AttUNet, SAUNet) show superior noise suppression
+- **Consistency**: Results show remarkable consistency across different retinal structures
+- **Clinical Viability**: Visual outputs closely match ground truth annotations, supporting clinical deployment
 
 ### **Clinical Impact**
 
@@ -377,18 +392,18 @@ Our datasets were collected through the **Machine Intelligence Lab** and **Sichu
 
 For **organizational security** and **intellectual property protection**, certain components are intentionally kept private:
 
-- **🔐 Proprietary Algorithms**: Advanced preprocessing techniques and specialized optimization methods
-- **🏥 Clinical Integration**: Hospital-specific workflow adaptations and DICOM processing modules  
-- **🧠 Advanced Models**: Cutting-edge architectures under development and patent review
-- **📊 Institutional Data**: Sensitive datasets and patient information handling protocols
-- **⚡ Performance Optimizations**: Hardware-specific acceleration and deployment strategies
+- **Proprietary Algorithms**: Advanced preprocessing techniques and specialized optimization methods
+- **Clinical Integration**: Hospital-specific workflow adaptations and DICOM processing modules  
+- **Advanced Models**: Cutting-edge architectures under development and patent review
+- **Institutional Data**: Sensitive datasets and patient information handling protocols
+- **Performance Optimizations**: Hardware-specific acceleration and deployment strategies
 
 The **published code represents core functionality** while maintaining confidentiality of sensitive research components and institutional intellectual property. This approach ensures:
 
-- ✅ **Open Science**: Sharing fundamental research contributions with the community
-- ✅ **Security Compliance**: Protecting sensitive medical data and proprietary methods
-- ✅ **Collaboration**: Enabling external researchers to build upon our work
-- ✅ **Innovation Protection**: Safeguarding competitive advantages and ongoing research
+- **Open Science**: Sharing fundamental research contributions with the community
+- **Security Compliance**: Protecting sensitive medical data and proprietary methods
+- **Collaboration**: Enabling external researchers to build upon our work
+- **Innovation Protection**: Safeguarding competitive advantages and ongoing research
 
 For **full access** or **research collaboration** opportunities, please contact us.
 
@@ -400,11 +415,11 @@ We welcome contributions from the global research community! Here's how you can 
 
 ### **Ways to Contribute**
 
-1. **🐛 Bug Reports**: Help us identify and fix issues
-2. **💡 Feature Requests**: Suggest improvements and new capabilities
-3. **🔬 Research Contributions**: Share your findings and model improvements
-4. **🏥 Clinical Validation**: Provide clinical feedback and validation data
-5. **📚 Documentation**: Improve tutorials and documentation
+1. **Bug Reports**: Help us identify and fix issues
+2. **Feature Requests**: Suggest improvements and new capabilities
+3. **Research Contributions**: Share your findings and model improvements
+4. **Clinical Validation**: Provide clinical feedback and validation data
+5. **Documentation**: Improve tutorials and documentation
 
 ### **Research Collaboration**
 
