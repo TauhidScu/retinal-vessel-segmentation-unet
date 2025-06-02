@@ -1,6 +1,6 @@
-# Advanced OCT Segmentation Framework
-
 <div align="center">
+
+<h1>Advanced OCT Segmentation Framework</h1>
 
 ![OCT Segmentation Banner](/assets/banner.png)
 
@@ -33,41 +33,33 @@
 
 ## Research Background
 
-This project represents a **collaborative research initiative** between the **Machine Intelligence Lab and  Department of Ophthalmology**, Sichuan University focusing on advanced deep learning solutions for OCT image analysis.
-It mainly includes data collection, data aannotation, data processing, model design and validation where data collection and data annotation is handaled by the expert from west school of Ophthalmology. 
+This project represents a **collaborative research initiative** between the **Machine Intelligence Lab and  Department of Ophthalmology**, Sichuan University focusing on advanced deep learning solutions for OCT image analysis. It mainly includes data collection, data annotation, data processing, model design and validation where data collection and data annotation is handled by the expert from west school of Ophthalmology.
 
 ### **Research Objectives**
 
 Our comprehensive framework addresses critical challenges in ophthalmology through:
 
-- **🔍 Epiretinal Membrane Segmentation**: Automated segmentation and quantification of pathological membranes  
-- **👁️ Retina segmentation**: Complete anatomical segmentation for clinical assessment
-- **🧬 Vesicles(Cyst)**: Binary and Multi-class segmentation of vesicles components distributed in different layers
-
+- **Epiretinal Membrane Segmentation**: Automated segmentation and quantification of pathological membranes  
+- **Retina segmentation**: Complete anatomical segmentation for clinical assessment
+- **Vesicles(Cyst)**: Binary and Multi-class segmentation of vesicles components distributed in different layers
 
 ## Key Features
 
-### 🎯 **Multi-Task Segmentation Capabilities**
+### **Multi-Task Segmentation Capabilities**
 
 - **Binary Segmentation**: ERM detection and retinal boundary delineation
 - **Multi-class Segmentation**: Vesicle classification (Background, Layer 2, Layer 4)
 - **Vascular Analysis**: Comprehensive vessel segmentation and quantification
 
-### 🧠 **Advanced Deep Learning Architectures**
+### **Advanced Deep Learning Architectures**
 
 - **U-Net (Standard)**: Robust baseline for medical image segmentation [[1]](https://link.springer.com/chapter/10.1007/978-3-319-24574-4_28)
-        
-        
 - **Nested U-Net (U-Net++)**: Enhanced feature propagation through dense skip connections [[2]](https://link.springer.com/chapter/10.1007/978-3-030-00889-5_1)
-        
-        
 - **Attention U-Net**: Focused feature learning with attention mechanisms [[3]](https://doi.org/10.48550/arXiv.1804.03999)
-        
-        
 - **Spatial Attention U-Net (SAUNet)**: Advanced spatial attention for precise localization [[4]](https://ieeexplore.ieee.org/document/9413346)
 - **ResNet U-Net**: Residual connections enabling deeper network training [[5]](https://ieeexplore.ieee.org/document/7780459)
 
-### 📊 **Comprehensive Evaluation Framework**
+### **Comprehensive Evaluation Framework**
 
 - **Clinical Metrics**: Sensitivity, specificity, accuracy tailored for medical applications
 - **Segmentation Quality**: Dice coefficient, IoU, Hausdorff distance
@@ -98,6 +90,7 @@ graph TD
     J --> K[Clinical Output]
 ```
 
+---
 
 ## Quick Start
 
@@ -177,9 +170,14 @@ The dataset was collected following standard regulation and the dataset is priva
 | **Retina** | 663 | 1536×1024 | Binary Segmentation | Complete Retinal Boundary |
 | **Vesicles** | 694 | 1536×1024 | Multi-class | Layer 2 & 4 Vesicle Classification |
 
+---
 
 ## Model Architectures
-Al the models were implemented following the original paper.
+
+### **Models Implementation**
+
+All models were implemented according to the original architecture specifications in their respective papers. We maintained strict adherence to the published methodologies while optimizing for OCT image processing applications.
+
 ### **Implemented Models**
 
 #### **1. U-Net (Baseline)** [[1]](https://link.springer.com/chapter/10.1007/978-3-319-24574-4_28)
@@ -309,10 +307,11 @@ The visual comparison reveals several key insights:
    - Layer thickness measurements
    - Structural integrity assessment
 
+---
 
 ## Code Privacy & Security
 
-**🔒 Important Notice**: This repository contains a **curated subset** of our research codebase developed through the collaboration between **Machine Intelligence Lab** and **Sichuan University**. 
+**🔒 Important Notice**: This repository contains a **curated subset** of our research codebase developed through the collaboration between **Machine Intelligence Lab** and **Sichuan University**.
 
 For **organizational security** and **intellectual property protection**, certain components are intentionally kept private:
 
@@ -352,6 +351,7 @@ We actively seek partnerships with:
 - **Academic Institutions** for joint research projects
 - **Clinical Centers** for validation studies
 - **Technology Companies** for deployment and scaling
+
 ---
 
 ## References
@@ -369,6 +369,12 @@ We actively seek partnerships with:
 ---
 
 <div align="center">
+
+**Contributors**
+
+<a href="https://github.com/TauhidScu/MultiModal-OCT-Analysis/graphs/contributors">
+   <img src="https://contrib.rocks/image?repo=TauhidScu/MultiModal-OCT-Analysis" />
+</a>
 
 *Advancing Medical AI Through International Collaboration*
 
